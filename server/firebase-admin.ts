@@ -1,13 +1,13 @@
-import * as admin from "firebase-admin";
+import { initializeApp, cert, getApp, App } from "firebase-admin/app";
+import { getAuth, DecodedIdToken } from "firebase-admin/auth";
 
-let app: admin.app.App | null = null;
+let app: App | null = null;
 
-function getFirebaseAdmin(): admin.app.App {
+function getFirebaseAdmin(): App {
   if (app) return app;
 
   // Support credentials via env vars (base64 encoded JSON) or a direct project ID
   const credentialsJson = process.env.FIREBASE_ADMIN_CREDENTIALS_JSON;
-  const projectId = process.env.FIREBASE_PROJECT_ID ?? "catur-bae";
   const databaseURL =
     process.env.FIREBASE_DATABASE_URL ??
     "https://catur-bae-default-rtdb.asia-southeast1.firebasedatabase.app";
@@ -17,8 +17,8 @@ function getFirebaseAdmin(): admin.app.App {
     const serviceAccount = JSON.parse(
       Buffer.from(credentialsJson, "base64").toString("utf8"),
     );
-    app = admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
+    app = initializeApp({
+      credential: cert(serviceAccount),
       databaseURL,
     });
   } else {
@@ -30,7 +30,7 @@ function getFirebaseAdmin(): admin.app.App {
 
 export async function verifyFirebaseIdToken(
   idToken: string,
-): Promise<admin.auth.DecodedIdToken> {
+): Promise<DecodedIdToken> {
   const adminApp = getFirebaseAdmin();
-  return adminApp.auth().verifyIdToken(idToken);
+  return getAuth(adminApp).verifyIdToken(idToken);
 }
