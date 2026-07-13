@@ -22,12 +22,7 @@ function getFirebaseAdmin(): admin.app.App {
       databaseURL,
     });
   } else {
-    // Fall back to application default credentials (e.g., local gcloud auth)
-    app = admin.initializeApp({
-      credential: admin.credential.applicationDefault(),
-      projectId,
-      databaseURL,
-    });
+    throw new Error("FIREBASE_ADMIN_CREDENTIALS_JSON is missing from Environment Variables. Please configure it in Vercel.");
   }
 
   return app;
